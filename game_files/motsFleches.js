@@ -188,7 +188,7 @@ function checkWord(player, wordObj) {
         _playersManager.getWinner().getPlayerObject()
       );
       setTimeout(() => {
-        resetGame(_gridManager.getGrid().infos.id - 1);
+        resetGame(Math.floor(Math.random() * Math.floor(1215)));
       }, DELAY_BETWEEN_GRID * 1000);
     }
   }

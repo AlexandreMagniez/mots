@@ -40,15 +40,7 @@ app.get('/conf.json', function(req, res) {
 // Start server
 http.createServer(app).listen(app.get('port'), onServerReady);
 
-// Retreive command line arguments
-if (process.argv[2]) {
-  // If the user wants the default grid (debug purpose)
-  if ((isNaN(process.argv[2])) && (process.argv[2].toLowerCase() == 'default'))
-    _gridNumber = -1;
-  // Else if the user try to retreive a special grid
-  else if (!isNaN(process.argv[2]))
-    _gridNumber = process.argv[2];
-}
+_gridNumber = Math.floor(Math.random() * Math.floor(1215));
 
 /** Call when the express server has started */
 async function onServerReady() {
