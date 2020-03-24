@@ -3,24 +3,24 @@
 */
 define(['cursor'], function (Cursor) {
 
-  var REVEAL_WORD_ANIM_DELAY  = 50;
+  const REVEAL_WORD_ANIM_DELAY  = 50;
 
-  var CaseType = {
+  const CaseType = {
     All: 1,
     Letter: 2,
     Description: 3,
     Empty: 4
   };
 
-  var AxisType = {
+  const AxisType = {
     Horizontal: 0,
     Vertical:   1
   };
 
-  var _grid,
-      _wordValidationCallback,
-      _cursor;
-  
+  let _grid;
+  let _wordValidationCallback;
+  let _cursor;
+
   function Grid(gridObj, wordValidationCallback) {
     // Save grid object
     _grid = gridObj;
@@ -68,27 +68,27 @@ define(['cursor'], function (Cursor) {
         lineHeight = Math.floor(size / info.nbLines);
         fontSize = Math.floor(lineHeight / 1.8);
         break;
-      
+
       case 4:
         lineHeight = Math.floor(size / info.nbLines);
         fontSize = Math.round(lineHeight / 1.5);
         break;
 
-      default: 
+      default:
         console.log('[ERROR][grid.js] Don\'t know how to display ' + info.nbLines + ' lines frame !!!');
     }
-    
+
     frame.style.lineHeight = lineHeight + 'px';
     frame.style.fontSize = fontSize + 'px';
 
     // Adding description in frame
     for (var i = 0; i < info.nbDesc; i++) {
       descNode = document.createElement('span');
-      
+
       // Insert description and arrow
       descNode.innerHTML = info.desc[i];
       descNode.classList.add('arrow' + info.arrow[i].toString());
-      
+
       frame.appendChild(descNode);
     };
 
@@ -96,8 +96,8 @@ define(['cursor'], function (Cursor) {
   }
 
   function insertLetter(line, column, size, info, index) {
-    var frame = document.createElement('div');
-    var input = document.createElement('input');
+    const frame = document.createElement('div');
+    const input = document.createElement('input');
     frame.appendChild(input);
 
     input.setAttribute('maxlength', '1');
@@ -119,7 +119,7 @@ define(['cursor'], function (Cursor) {
     frame.setAttribute('data-line', line);
     frame.setAttribute('data-col', column);
     frame.setAttribute('data-pos', info.pos);
-    input.tabIndex = index;
+    input.tabIndex = index - 1;
 
     if (info.dashed)
       frame.classList.add('dash' + info.dashed);
@@ -203,7 +203,7 @@ define(['cursor'], function (Cursor) {
       i += jump;
     }
 
-    // Ignore false detection of 1 letter word 
+    // Ignore false detection of 1 letter word
     if (word.length <= 1)
       return (null);
 
@@ -237,7 +237,7 @@ define(['cursor'], function (Cursor) {
     }
   }
 
-  
+
   /*
   * Function called when a players has found a word. Display it on the grid in the right color
   */
@@ -264,7 +264,7 @@ define(['cursor'], function (Cursor) {
         input.classList.add('reveal' + wordObj.axis);
         frame.classList.add('reveal' + wordObj.axis);
         input.value = _grid.cases[index].letter;
-        
+
         animationDelay += REVEAL_WORD_ANIM_DELAY;
       }
 
@@ -274,56 +274,51 @@ define(['cursor'], function (Cursor) {
 
 
   /*
-  * Display the grid on the game screen 
+  * Display the grid on the game screen
   */
   Grid.prototype.DisplayGrid = function () {
-    var container = document.getElementById('gs-grid-container'),
-        limit,
-        frameSize,
-        line, col,
-        nbFrames = _grid.cases.length,
-        i;
+    const container = document.getElementById('gs-grid-container');
 
-    // First we have to retreive the min size to display the grid
-    limit = (container.offsetWidth < container.offsetHeight) ? container.offsetWidth : container.offsetHeight;
-    // console.log('Plus petit cote: ' + limit);
+    // First we have to retrieve the min size to display the grid
+    const limit = (container.offsetWidth < container.offsetHeight) ? container.offsetWidth : container.offsetHeight;
 
     // Determine frame size
-    frameSize = (_grid.nbLines > _grid.nbColumns) ? _grid.nbLines : _grid.nbColumns;
+    let frameSize = (_grid.nbLines > _grid.nbColumns) ? _grid.nbLines : _grid.nbColumns;
     frameSize = Math.floor(limit / frameSize);
-    // console.log('Taille de case: ' + frameSize);
 
-    // For each frame
-    for (i = 0; i < nbFrames; i++) {
+    let nbFrames = _grid.cases.length;
+    for (let i = 0; i < nbFrames; i++) {
       // Get line and col
-      line = Math.floor(i / _grid.nbLines);
-      col = i % _grid.nbColumns;
+      const line = Math.floor(i / _grid.nbLines);
+      const col = i % _grid.nbColumns;
 
       // Insert frame
-      if (_grid.cases[i].type == CaseType.Letter)
+      if (_grid.cases[i].type === CaseType.Letter) {
         container.appendChild(insertLetter(line, col, frameSize, _grid.cases[i], i));
-      else if (_grid.cases[i].type == CaseType.Description)
+      } else if (_grid.cases[i].type === CaseType.Description) {
         container.appendChild(insertDescription(line, col, frameSize, _grid.cases[i]));
-      else
+      } else {
         container.appendChild(insertEmptyFrame(line, col, frameSize, _grid.cases[i]));
-
-    };
+      }
+    }
 
     // Bind events after a short delay to be sure all new DOM content are injected
     window.setTimeout(function () {
       _cursor.RegisterEvents();
+      // fix grid size
+      document.documentElement.style
+        .setProperty('--grid-size', container.offsetHeight + 'px');
     }, 100);
-    
   };
 
   /*
   * Reset the grid to prepare a new game
   */
   Grid.prototype.resetGrid = function () {
-    var container = document.getElementById('gs-grid-container').innerHTML = '';
+    document.getElementById('gs-grid-container').innerHTML = '';
   };
-  
+
 
   return (Grid);
-  
+
 });

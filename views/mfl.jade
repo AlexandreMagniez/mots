@@ -27,22 +27,30 @@ html
 
       section#lp-infos
         form#login-form
-          input#lp-nick(type='text', value='', placeholder='Votre pseudo')
+          input#lp-nick(type='text', value='', placeholder='Votre pseudo', spellcheck='false')
           #lp-logos
           input#lp-start-btn(type='submit', value='Jouer !')
 
-      // Game screen
-      #game-panel.ui
+    // Game screen
+    #game-panel.ui
+      .main-panel
+        section#gs-menu
+          .lp-case.lp-title M
+          .lp-case.lp-title O
+          .lp-case.lp-title T
+          .lp-case.lp-title S
+          .lp-case.lp-title .
+          .lp-case.lp-title J
+          .lp-case.lp-title S
+          #gsc-command-grid.gsc-button(tabindex=0, role='button') 
+        section#gs-grid-container
         section#gs-chat
           #gsc-messages
-          textarea#gsc-write(placeholder='Votre message', tabindex='-1')
-          #gsc-command-start.gsc-button 
-          #gsc-command-grid.gsc-button 
-        section#gs-grid-container
+          textarea#gsc-write(placeholder='Votre message')
         section#gs-scores
 
-      // Error screen
-      #error-panel.ui
-        h1#ep-title Ooooops !
-        strong#ep-text Something goes wrong
-      #info-tooltip
+    // Error screen
+    #error-panel.ui
+      h1#ep-title Ooooops !
+      strong#ep-text Something goes wrong
+    #info-tooltip

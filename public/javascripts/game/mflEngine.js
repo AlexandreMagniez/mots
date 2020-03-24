@@ -163,6 +163,8 @@ require([
     }
 
     loginInput.focus();
+
+    sendPlayerReady();
   }
 
   function sendPlayerReady() {

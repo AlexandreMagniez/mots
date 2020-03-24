@@ -2,10 +2,9 @@
 *   UITools provide some usefull functions to manage the UI or display informative messages
 */
 define(function () {
-
-  var _infPanlTimer = null; // Use for info panel timer reference
-      _gameTimer    = null; // Game timer
-      _socket       = null; // Socket use to send messages to the server
+  let _infPanlTimer = null; // Use for info panel timer reference
+  let _gameTimer = null; // Game timer
+  let _socket = null; // Socket use to send messages to the server
 
   function UITools() {
     // Do nothing on init
@@ -50,20 +49,14 @@ define(function () {
   }
 
   function changeGrid() {
-    var texteareaNode = document.getElementById('gsc-write'),
-        gridNumber = parseInt(texteareaNode.value);
+    const gridNumber = +prompt('Entrer le numéro de la grille souhaitée');
 
-    // If the grid number retreived is not valid, display an informative tooltip
-    if (isNaN(gridNumber))
-      new UITools().InfoTooltip(true, 'Pour changer de grille, saisissez <strong>le numéro voulu</strong> dans le chat', 2000);
-    // Else send the change grid command
-    else {
+    if (isNaN(gridNumber)) {
+      new UITools().InfoTooltip(true, 'Le numéro de la grille est invalide', 2000);
+    } else {
       _socket.emit('chat', '!grid '+ gridNumber.toString());
-      texteareaNode.value = '';
     }
   }
-
-
   
   /*
   * Switch game screen to the selected view 
@@ -231,16 +224,12 @@ define(function () {
 
   /*
   * Bind server command buttons.
-  * @param {Object}   socket  The color as a string
   */
-  UITools.prototype.bindServerCommandButtons = function(socket) {
+  UITools.prototype.bindServerCommandButtons = function (socket) {
     _socket = socket;
 
-    document.getElementById('gsc-command-start').addEventListener('click', function () { _socket.emit('chat', '!start'); }, false);
-    document.getElementById('gsc-command-grid').addEventListener('click', changeGrid, false);;
+    document.getElementById('gsc-command-grid')
+      .addEventListener('click', changeGrid, false);
   };
-
-
-  return (UITools);
-  
+  return UITools;
 });

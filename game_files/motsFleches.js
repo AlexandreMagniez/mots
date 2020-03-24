@@ -6,8 +6,8 @@ var enums = require("./enums"),
 // Defines
 var MAX_PLAYERS = 1000;
 var SERVER_CHAT_COLOR = "#c0392b";
-var TIME_BEFORE_START = 1;
-var DELAY_BETWEEN_GRID = 2;
+var TIME_BEFORE_START = 3;
+var DELAY_BETWEEN_GRID = 5;
 
 // Parameters
 var _playersManager, _gridManager, _io, _gameState, _lastWordFoudTimestamp;
@@ -45,20 +45,14 @@ function resetGame(gridID) {
   _gridManager.resetGrid(gridID, function(grid) {
     if (grid == null) {
       // If an error occurs, exit
-      console.error("[ERROR] Cannot retreive requested grid [" + gridID + "]");
+      console.error(`[ERROR] Cannot retreive requested grid [${gridID}]`);
       sendChatMessage(
-        "Oups, impossible de récupérer la grille " + gridID + "!"
+        `Oups, impossible de récupérer la grille ${gridID}!`
       );
     } else {
       infos = _gridManager.getGridInfos();
       sendChatMessage(
-        "Grille " +
-          infos.provider +
-          " " +
-          infos.id +
-          " (Niveau " +
-          infos.level +
-          ") prête !"
+        `Grille ${infos.provider} ${infos.id} (Niveau ${infos.level}) prête !`
       );
 
       // Send reset order to clients
@@ -134,7 +128,7 @@ function bonusChecker(playerPoints, nbWordsRemaining) {
 
   // If it's the first word since the last 2 minutes, 5 points
   if (now - _lastWordFoudTimestamp > 120000) {
-    bonus.bonusList.push({ title: "Débloqueur", points: 5 });
+    bonus.bonusList.push({ title: "Débloqueur !", points: 5 });
     bonus.points += 5;
   }
 

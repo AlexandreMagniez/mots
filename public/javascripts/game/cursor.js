@@ -167,7 +167,7 @@ define(function () {
 
     // move the grid otherwise it would be hidden by the virtual keyboard
     if (isMobileOrTablet() && +_focusCell.dataset.line > 7) {
-      document.getElementById('game-panel').style.bottom = '400px';
+      document.getElementById('game-panel').style.bottom = '200px';
     }
   }
 
@@ -215,9 +215,15 @@ define(function () {
   * When a letter is pressed on the grid
   */
   function onLetterPressed(event) {
+    const key = event.keyCode;
+
+    // tab, do nothing
+    if (key === 9) {
+      return;
+    }
+
     event.preventDefault();
     event.stopPropagation();
-    const key = event.keyCode;
 
     // press space to change the cursor direction
     if (key === 32) {
@@ -295,6 +301,7 @@ define(function () {
     for (i = 0; i < size; i++) {
       // Register click event for cursor
       letterCases[i].addEventListener('click', onClickReceived, false);
+      letterCases[i].firstChild.addEventListener('focus', onClickReceived, false);
 
       if (isMobileOrTablet()) {
         // on a mobile keyboard, there is no good way to get key so validate using the enter key or on blur
