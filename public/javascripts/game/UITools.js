@@ -49,12 +49,15 @@ define(function () {
   }
 
   function changeGrid() {
-    const gridNumber = +prompt('Entrer le numéro de la grille souhaitée');
+    const gridNumber = prompt('Entrer le numéro de la grille souhaitée');
+    if (gridNumber === null) {
+      return;
+    }
 
-    if (isNaN(gridNumber)) {
+    if (isNaN(+gridNumber)) {
       new UITools().InfoTooltip(true, 'Le numéro de la grille est invalide', 2000);
     } else {
-      _socket.emit('chat', '!grid '+ gridNumber.toString());
+      _socket.emit('chat', '!grid '+ gridNumber);
     }
   }
   
