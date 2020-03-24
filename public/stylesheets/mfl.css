@@ -604,6 +604,7 @@ body {
   position: absolute;
   bottom: -0.8em;
   left: 31%;
+  right: initial;
 
   content: "\e604";
   font-family: "icomoon";
