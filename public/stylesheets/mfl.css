@@ -319,7 +319,7 @@ body {
 }
 
 :root {
-  --grid-size: min(90vh, 900px);
+  --grid-size: 900px;
 }
 
 .main-panel {
@@ -342,7 +342,7 @@ body {
 
 @media screen and (max-width: 1200px) {
   :root {
-    --grid-size: min(calc(70vh), 900px);
+    --grid-size: min(70vh, 900px);
   }
 
   .main-panel {

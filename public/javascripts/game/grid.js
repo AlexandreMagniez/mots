@@ -280,7 +280,7 @@ define(['cursor'], function (Cursor) {
     const container = document.getElementById('gs-grid-container');
 
     // First we have to retrieve the min size to display the grid
-    const limit = (container.offsetWidth < container.offsetHeight) ? container.offsetWidth : container.offsetHeight;
+    const limit = container.offsetHeight;
 
     // Determine frame size
     let frameSize = (_grid.nbLines > _grid.nbColumns) ? _grid.nbLines : _grid.nbColumns;

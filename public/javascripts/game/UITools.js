@@ -233,6 +233,13 @@ define(function () {
 
     document.getElementById('gsc-command-grid')
       .addEventListener('click', changeGrid, false);
+
+    document.getElementById('gsc-command-grid')
+      .addEventListener('keydown', e => {
+        if(e.keyCode === 13) {
+          changeGrid();
+        }
+      }, false);
   };
   return UITools;
 });

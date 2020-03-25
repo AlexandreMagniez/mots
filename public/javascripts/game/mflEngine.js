@@ -34,6 +34,11 @@ require([
   Conf = JSON.parse(Conf);
 
   function startClient() {
+    // fix grid size
+    const minSize =  Math.min(window.innerHeight, window.innerWidth);
+    document.documentElement.style
+      .setProperty('--grid-size', Math.min(minSize * .9, 900) + 'px');
+
     if (typeof io == "undefined") {
       document.getElementById("ep-text").innerHTML =
         "Cannot retreive socket.io file at the address " +
