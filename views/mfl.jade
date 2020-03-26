@@ -42,6 +42,7 @@ html
           .lp-case.lp-title .
           .lp-case.lp-title J
           .lp-case.lp-title S
+          #gsc-command-help.gsc-button(tabindex=0, role='button') ?
           #gsc-command-grid.gsc-button(tabindex=0, role='button') 
         section#gs-grid-container
         section#gs-chat
@@ -54,3 +55,21 @@ html
       h1#ep-title Ooooops !
       strong#ep-text Something goes wrong
     #info-tooltip
+
+    #help-modal.modal
+      .modal-content
+        span.close ×
+        h2 Comment jouer ?
+        p Sur Ordinateur:
+        ul
+          li Utilise les flèches du clavier pour bouger le curseur
+          li Pour changer de direction, appuie sur espace ou clique à nouveau dans la cellule
+          li Pour supprimer une lettre (et aller en arrière) utilise le retour arrière
+
+        p Avec un téléphone:
+        ul
+          li Entre une lettre et appuie "Entrée" pour valider la lettre
+          li Pour changer de direction, appuie sur "Entrée" dans une case vide
+
+        p Bonne partie !
+
