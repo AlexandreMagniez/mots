@@ -124,7 +124,8 @@ define(['cursor'], function (Cursor) {
     frame.setAttribute('data-line', line);
     frame.setAttribute('data-col', column);
     frame.setAttribute('data-pos', info.pos);
-    input.tabIndex = index - 1;
+    frame.tabIndex = -1;
+    input.tabIndex = index === 1 ? 0 : -1;
 
     if (info.dashed)
       frame.classList.add('dash' + info.dashed);
@@ -269,6 +270,7 @@ define(['cursor'], function (Cursor) {
         input.classList.add('reveal' + wordObj.axis);
         frame.classList.add('reveal' + wordObj.axis);
         input.value = _grid.cases[index].letter;
+        input.disabled = true;
 
         animationDelay += REVEAL_WORD_ANIM_DELAY;
       }

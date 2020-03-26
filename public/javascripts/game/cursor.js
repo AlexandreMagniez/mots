@@ -10,6 +10,36 @@ define(function () {
     return check;
   }
 
+  const keys = {
+    ENTER: 13,
+    BACKSPACE: 8,
+    TAB: 9,
+    SPACE: 32,
+    LETTER_A: 65,
+    LETTER_Z: 90,
+    ESCAPE: 27,
+    DEL: 46
+  };
+
+  const enumArrowDirection = {
+    None: 0,
+    Right: 1,
+    Bottom: 2,
+    RightBottom: 3,
+    BottomRight: 4
+  };
+
+  const enumCaseType = {
+    All: 1,
+    Letter: 2,
+    Description: 3,
+    Empty: 4
+  };
+
+  const directionClass = {
+    goRight: 'goRight',
+    goDown: 'goDown'
+  };
 
   const enumDirections = {
     Left: 37,
@@ -43,10 +73,43 @@ define(function () {
     // Getting Grid
     _grid = gridObj.cases;
     _nbLines = gridObj.nbLines;
-    _nbCols = gridObj.nbColumns
+    _nbCols = gridObj.nbColumns;
 
     // Retrieve callback
     _letterUpdateCallback = letterUpdateCallback;
+  }
+
+  function findOptimalDirectionForCell(cellNumber) {
+    const currentDiv = document.querySelector('.frame' + cellNumber);
+    const currentLine = currentDiv.dataset.line;
+    const currentCol = currentDiv.dataset.col;
+
+    const leftCellDiv = document.querySelector('.frame' + (cellNumber - 1));
+    const leftCell = _grid[cellNumber - 1];
+
+    const topCellDiv = currentLine ?
+      document.querySelector(
+        '[data-line="' + (+currentLine - 1) + '"][data-col="' + currentCol + '"]')
+      : null;
+    const topCell = topCellDiv ? _grid[topCellDiv.dataset.pos] : null;
+
+    if (leftCell && leftCellDiv.dataset.line === currentLine && leftCell.type === enumCaseType.Description) {
+      const arrowType = leftCell.arrow[0];
+
+      return arrowType === enumArrowDirection.Bottom || arrowType === enumArrowDirection.Right // right is right-bottom
+        ? enumDirections.Down
+        : enumDirections.Right;
+    }
+
+    if (topCell && topCell.type === enumCaseType.Description) {
+      const arrowType = topCell.arrow[topCell.arrow.length - 1];
+
+      return arrowType === enumArrowDirection.RightBottom
+        ? enumDirections.Right
+        : enumDirections.Down;
+    }
+
+    return enumDirections.Right;
   }
 
 
@@ -64,25 +127,24 @@ define(function () {
     // If no direction given, toggle current direction
     if (!direction) {
       if (_focusDirection === enumDirections.Right) {
-        _focusCell.classList.remove('goRight');
-        _focusCell.classList.add('goDown');
+        _focusCell.classList.remove(directionClass.goRight);
+        _focusCell.classList.add(directionClass.goDown);
         _focusDirection = enumDirections.Down;
-      }
-      else {
-        _focusCell.classList.remove('goDown');
-        _focusCell.classList.add('goRight');
+      } else {
+        _focusCell.classList.remove(directionClass.goDown);
+        _focusCell.classList.add(directionClass.goRight);
         _focusDirection = enumDirections.Right;
       }
     }
     // Else change direction to the one needed then apply right style
     else {
       _focusDirection = (_focusDirection === enumDirections.Right) ? enumDirections.Down : enumDirections.Right;
-      _focusCell.classList.remove('goRight');
-      _focusCell.classList.remove('goDown');
+      _focusCell.classList.remove(directionClass.goRight);
+      _focusCell.classList.remove(directionClass.goDown);
       if (_focusDirection === enumDirections.Right)
-        _focusCell.classList.add('goRight');
+        _focusCell.classList.add(directionClass.goRight);
       else
-        _focusCell.classList.add('goDown');
+        _focusCell.classList.add(directionClass.goDown);
     }
   }
 
@@ -92,14 +154,14 @@ define(function () {
   *   @return: {Bool}  True if the cursor has moved, else false
   */
   function moveCursor(direction) {
-    const frameNumber = parseInt(_focusCell.getAttribute('data-pos'));
-    let index = 0;
+    const frameNumber = +_focusCell.dataset.pos;
 
     // Retrieve direction if not specified
     if (!direction) {
       direction = _focusDirection;
     }
 
+    let index = 0;
     // According to the direction, check if the next frame is available
     switch (direction) {
       case enumDirections.Left:
@@ -117,53 +179,75 @@ define(function () {
         break;
 
       default:
-        console.log('[ERROR] [Cursor.moveCursor] Unknow direction ' + direction);
+        console.log('[ERROR] [Cursor.moveCursor] Unknown direction ' + direction);
     }
 
-    // If the next frame is a letter frame, movo on it
-    if (_grid[index].type === 2) {
-      // Release old frame
-      _focusCell.classList.remove('goRight');
-      _focusCell.classList.remove('goDown');
+    const nextDiv = document.querySelector('.frame'+ index);
 
-      // Focus new frame
-      _focusCell = document.querySelector('.frame' + index);
-      _preventBlurLock = true;
+
+    // If the next frame is a letter frame, move on it
+    const canMove = nextDiv && _grid[index].type === enumCaseType.Letter && (
+      (direction === enumDirections.Right && nextDiv.dataset.line === _focusCell.dataset.line)
+      || direction !== enumDirections.Right
+    );
+
+    if (!canMove) {
+      return;
+    }
+
+    // Release old frame
+    _focusCell.classList.remove(directionClass.goRight);
+    _focusCell.classList.remove(directionClass.goDown);
+
+    // Focus new frame
+    _focusCell = document.querySelector('.frame' + index);
+    _preventBlurLock = true;
+    if (_focusCell.firstChild.disabled) {
+      _focusCell.focus();
+    } else {
       _focusCell.firstChild.focus();
-      _preventBlurLock = false;
-      if (direction === enumDirections.Left || direction === enumDirections.Right) {
-        _focusDirection = enumDirections.Right;
-        _focusCell.classList.add('goRight');
-      }
-      else {
-        _focusDirection = enumDirections.Down;
-        _focusCell.classList.add('goDown');
-      }
-
-      return true;
     }
-    // Else do nothing
-    else
-      return false;
+    _preventBlurLock = false;
+
+    if (direction === enumDirections.Left || direction === enumDirections.Right) {
+      _focusDirection = enumDirections.Right;
+      _focusCell.classList.add(directionClass.goRight);
+    } else {
+      _focusDirection = enumDirections.Down;
+      _focusCell.classList.add(directionClass.goDown);
+    }
   }
 
 
   function onClickReceived(event) {
-    if (_focusCell != null) {
+    removeDirectionCells();
+
+    const previousCellNumber = _focusCell && _focusCell.dataset.pos;
+
+    // Remember the cell, focus it and set default direction
+    _focusCell = event.target.tagName === "DIV" ? event.target : event.target.parentElement;
+    const currentCellNumber = _focusCell.dataset.pos;
+
+    if (!currentCellNumber) {
+      return;
+    }
+
+    if (previousCellNumber != null) {
       // If the player clicked the same frame, just toggle the cursor direction
-      if (_focusCell === event.target) {
+      if (previousCellNumber === currentCellNumber) {
         setCursorDirection();
         return;
       }
-      _focusCell.classList.remove('goRight');
-      _focusCell.classList.remove('goDown');
     }
 
-    // Remember the cell, focus it and set default direction
-    _focusCell = event.target.parentElement;
-    event.target.focus();
-    _focusCell.classList.add('goRight');
-    _focusDirection = enumDirections.Right;
+    if (event.target.disabled) {
+      _focusCell.focus();
+    } else {
+      event.target.focus();
+    }
+
+    _focusDirection = findOptimalDirectionForCell(+currentCellNumber);
+    _focusCell.classList.add(_focusDirection === enumDirections.Right ? directionClass.goRight : directionClass.goDown);
 
     // move the grid otherwise it would be hidden by the virtual keyboard
     if (isMobileOrTablet() && +_focusCell.dataset.line > 7) {
@@ -180,15 +264,17 @@ define(function () {
 
     if (!event.target.value) {
       // if the input is empty, change focus direction on enter key
-      if (key === 13) {
+      if (key === keys.ENTER) {
         setCursorDirection();
-      } else if (key === 8) {
+      } else if (key === keys.BACKSPACE) {
+        event.preventDefault();
+        event.stopPropagation();
         moveBack();
       }
       return;
     }
 
-    if (key !== 13) {
+    if (key !== keys.ENTER) {
       return;
     }
 
@@ -218,35 +304,30 @@ define(function () {
     const key = event.keyCode;
 
     // tab, do nothing
-    if (key === 9) {
+    if (key === keys.TAB) {
       return;
     }
 
     event.preventDefault();
     event.stopPropagation();
 
-    // press space to change the cursor direction
-    if (key === 32) {
+    if (key === keys.SPACE) {
       return setCursorDirection();
     }
 
-    // If a letter is pressed
-    if ((key >= 65) && (key <= 90)) {
+    if ((key >= keys.LETTER_A) && (key <= keys.LETTER_Z)) {
       return insertLetter(String.fromCharCode(key));
     }
 
-    // if backspace and no value, move one cell back
-    if (key === 8 && !getCurrentCellValue()) {
+    if (key === keys.BACKSPACE && !getCurrentCellValue()) {
       moveBack();
     }
 
-    // If backspace / escape / del is pressed
-    if ((key === 8) || (key === 27) || (key === 46)) {
+    if ((key === keys.BACKSPACE) || (key === keys.ESCAPE) || (key === keys.DEL)) {
       return removeLetter();
     }
 
-    // If an arrow is pressed
-    if (key >= 37 && key <= 40) {
+    if (key >= enumDirections.Left && key <= enumDirections.Down) {
       return moveCursor(key);
     }
   }
@@ -283,6 +364,16 @@ define(function () {
   }
 
 
+  function removeDirectionCells() {
+    Array.from(document.querySelectorAll('.' + directionClass.goDown)).forEach(el => {
+      el.classList.remove(directionClass.goRight);
+      el.classList.remove(directionClass.goDown);
+    });
+    Array.from(document.querySelectorAll('.' + directionClass.goRight)).forEach(el => {
+      el.classList.remove(directionClass.goRight);
+      el.classList.remove(directionClass.goDown);
+    })
+  }
 
   /*-------------------------
       Public methods
@@ -300,8 +391,16 @@ define(function () {
     size = letterCases.length;
     for (i = 0; i < size; i++) {
       // Register click event for cursor
+      letterCases[i].firstChild.addEventListener('blur', (event) => {
+        removeDirectionCells();
+      }, false);
+
       letterCases[i].addEventListener('click', onClickReceived, false);
-      letterCases[i].firstChild.addEventListener('focus', onClickReceived, false);
+      letterCases[i].firstChild.addEventListener('focus', (event) => {
+        if (!_focusCell) {
+          onClickReceived(event)
+        }
+      }, false);
 
       if (isMobileOrTablet()) {
         // on a mobile keyboard, there is no good way to get key so validate using the enter key or on blur
@@ -314,6 +413,6 @@ define(function () {
   };
 
 
-  return (Cursor);
+  return Cursor;
 
 });
